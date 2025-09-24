@@ -7,7 +7,7 @@ My role is to **fix and extend the implementation**, ensuring that the schedulin
 
 ---
 
-## 📌 Process Scheduling  
+##  Process Scheduling  
 
 In a multitasking operating system, processes appear to be executed simultaneously. In reality, the available CPUs must be shared among a large number of processes, each running for a certain time slice before being preempted to allow others to execute.  
 
@@ -25,7 +25,7 @@ The simulator reads its configuration from **standard input** (or a configuratio
 
 ---
 
-## ▶️ Running the Simulator  
+##  Running the Simulator  
 
 ### Linux  
 
@@ -36,6 +36,7 @@ The simulator reads its configuration from **standard input** (or a configuratio
 ./scheduler test/caso_1_rr.txt
 ./scheduler test/caso_1_sjf.txt
 ./scheduler test/caso_1_srt.txt
+
 
 
 
