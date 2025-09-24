@@ -1,0 +1,22 @@
+#Utiliza 2 colas de prioridad
+DEFINE queues 1
+DEFINE queues 2
+
+#Definir la estrategia para cada cola
+DEFINE scheduling 1 FIFO
+DEFINE scheduling 2 RR
+
+#Definir quantum (prioridad) para cada
+#cola
+DEFINE quantum 1 10
+DEFINE quantum 2 2
+
+#Definir procesos p tll tcpu prioridad
+PROCESS p1 0 5 1
+PROCESS p2 2 4 1
+PROCESS p3 1 5 1
+PROCESS p4 1 5 1
+PROCESS p5 1 5 1
+PROCESS p6 1 5 1
+
+START

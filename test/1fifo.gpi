@@ -1,0 +1,19 @@
+set term pngcairo dashed size 1024,768
+set output 'test/1fifo.png'
+set style fill solid
+set xrange [0:11]
+set yrange [0:4]
+unset ytics
+set title 'Planificacion'
+set ytics('p1' 1,'p2' 2,'p3' 3)
+set xtics 1
+unset key
+set xlabel 'Tiempo'
+set ylabel 'Proceso'
+set style line 1 lt 1 lw 2 lc rgb '#00ff00'
+set style line 2 lt 1 lw 2 lc rgb '#00ff00'
+set style line 3 lt 1 lw 1 lc rgb '#202020'
+set style arrow 1 heads size screen 0.008,90 ls 1
+set style arrow 2 heads size screen 0.008,100 ls 2
+set style arrow 3 heads size screen 0.008,100 ls 3
+plot NaN
