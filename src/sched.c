@@ -47,6 +47,14 @@ void schedule(list *processes, priority_queue *queues, int nqueues)
   node_iterator it; //Iterador de lista
   process * p; //Apuntador a un proceso
 
+  // Variables para la simulación
+  int current_time = 0;
+  int next_arrival;
+  process *current_process = NULL;
+  int current_quantum = 0;
+  int time_slice;
+  int queue_index;
+
   // Preparar para una nueva simulacion
   // Inicializar las colas de prioridad con la informacion de la lista
   // de procesos leidos
@@ -54,10 +62,131 @@ void schedule(list *processes, priority_queue *queues, int nqueues)
 
   sequence = create_list();
 
-   /** \todo Implementar la planificacion! */
+  // Implementación de la planificación
+  while (1) {
+    // Procesar llegadas de nuevos procesos
+    process_arrival(current_time, queues, nqueues);
+    
+    // Si no hay proceso ejecutándose, seleccionar uno
+    if (current_process == NULL) {
+      // Buscar un proceso en las colas de prioridad (orden de prioridad)
+      for (i = 0; i < nqueues && current_process == NULL; i++) {
+        if (!empty(queues[i].ready)) {
+          current_process = front(queues[i].ready);
+          pop_front(queues[i].ready);
+          current_process->state = RUNNING;
+          current_quantum = 0;
+          queue_index = i;
+          printf("[%d] Process %s started/resumed (remaining: %d)\n", 
+                 current_time, current_process->name, current_process->remaining_time);
+        }
+      }
+    }
+    
+    // Si no hay procesos para ejecutar, avanzar al siguiente evento
+    if (current_process == NULL) {
+      next_arrival = get_next_arrival(queues, nqueues);
+      if (next_arrival == -1) {
+        // No hay más procesos por llegar
+        break;
+      }
+      current_time = next_arrival;
+      continue;
+    }
+    
+    // Calcular el tiempo de ejecución para este slice
+    time_slice = current_process->remaining_time;
+    
+    // Para Round Robin, limitar por quantum
+    if (queues[queue_index].strategy == RR && queues[queue_index].quantum > 0) {
+      int remaining_quantum = queues[queue_index].quantum - current_quantum;
+      time_slice = min(time_slice, remaining_quantum);
+    }
+    
+    // Verificar si hay llegadas antes de que termine el slice
+    next_arrival = get_next_arrival(queues, nqueues);
+    if (next_arrival != -1 && next_arrival < current_time + time_slice) {
+      time_slice = next_arrival - current_time;
+    }
+    
+    // Asegurar que el time_slice sea al menos 1
+    if (time_slice <= 0) {
+      time_slice = 1;
+    }
+    
+    // Ejecutar el proceso por time_slice unidades de tiempo
+    current_process->remaining_time -= time_slice;
+    current_process->cpu_time += time_slice;
+    current_quantum += time_slice;
+    
+    // Crear slice de CPU para el proceso actual
+    push_back(current_process->slices, create_slice(CPU, current_time, current_time + time_slice));
+    
+    // Agregar tiempo de espera a otros procesos listos
+    add_waiting_time(processes, current_process, current_time, time_slice);
+    
+    // Agregar a la secuencia de ejecución
+    si = (sequence_item *)malloc(sizeof(sequence_item));
+    si->name = malloc(strlen(current_process->name) + 1);
+    strcpy(si->name, current_process->name);
+    si->time = time_slice;
+    push_back(sequence, si);
+    
+    // Avanzar el tiempo
+    current_time += time_slice;
+    
+    // Verificar si el proceso terminó
+    if (current_process->remaining_time <= 0) {
+      // Proceso terminado
+      current_process->state = FINISHED;
+      current_process->finished_time = current_time;
+      push_back(queues[queue_index].finished, current_process);
+      printf("[%d] Process %s finished\n", current_time, current_process->name);
+      current_process = NULL;
+    }
+    else if (queues[queue_index].strategy == RR && 
+             queues[queue_index].quantum > 0 && 
+             current_quantum >= queues[queue_index].quantum) {
+      // Quantum agotado en Round Robin - preempción
+      current_process->state = READY;
+      push_back(queues[queue_index].ready, current_process);
+      printf("[%d] Process %s preempted (quantum expired, remaining: %d)\n", 
+             current_time, current_process->name, current_process->remaining_time);
+      current_process = NULL;
+    }
+    else if (queues[queue_index].strategy == SRT) {
+      // Para SRT, verificar si hay un proceso con menor tiempo restante
+      // Reordenar la cola si es necesario
+      current_process->state = READY;
+      insert_ordered(queues[queue_index].ready, current_process, compare_srt);
+      current_process = NULL;
+    }
+    else if (queues[queue_index].strategy != FIFO && queues[queue_index].strategy != SJF) {
+      // Para otras estrategias no preemptivas que no sean FIFO/SJF
+      // El proceso continúa ejecutándose
+    }
+  } // FIN del while (1)
+
+  // Calcular tiempos de espera finales
+  for (it = head(processes); it != 0; it = next(it)) {
+    p = (process *)it->data;
+    if (p->waiting_time == -1) {
+      p->waiting_time = 0;
+    }
+    // Calcular tiempo de espera total basado en los slices
+    int total_wait = 0;
+    node_iterator slice_it;
+    slice *s;
+    for (slice_it = head(p->slices); slice_it != 0; slice_it = next(slice_it)) {
+      s = (slice *)slice_it->data;
+      if (s->type == WAIT) {
+        total_wait += (s->to - s->from);
+      }
+    }
+    p->waiting_time = total_wait;
+  }
 
   // Imprimir el resultado de la simulacion
-
   for (i = 0; i < nqueues; i++)
   {
     print_queue(&queues[i]);

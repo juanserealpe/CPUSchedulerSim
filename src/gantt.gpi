@@ -1,0 +1,28 @@
+set term pngcairo dashed size 1024,768
+set output 'gantt.png'
+set style fill solid
+set xrange [0:15]
+set yrange [0:4]
+unset ytics
+set title 'Planificacion'
+set ytics('p1' 1,'p2' 2,'p3' 3)
+set xtics 1
+unset key
+set xlabel 'Tiempo'
+set ylabel 'Proceso'
+set style line 1 lt 1 lw 2 lc rgb '#00ff00'
+set style line 2 lt 1 lw 2 lc rgb '#00ff00'
+set style line 3 lt 1 lw 1 lc rgb '#202020'
+set style arrow 1 heads size screen 0.008,90 ls 1
+set style arrow 2 heads size screen 0.008,100 ls 2
+set style arrow 3 heads size screen 0.008,100 ls 3
+set arrow 1 from 0,1 to 1,1 as 1
+set arrow 2 from 1,1 to 2,1 as 1
+set arrow 3 from 2,1 to 5,1 as 1
+set arrow 4 from 2,2 to 5,2 as 3
+set arrow 5 from 5,2 to 9,2 as 1
+set arrow 6 from 1,3 to 2,3 as 3
+set arrow 7 from 2,3 to 5,3 as 3
+set arrow 8 from 5,3 to 9,3 as 3
+set arrow 9 from 9,3 to 14,3 as 1
+plot NaN
