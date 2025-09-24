@@ -15,7 +15,7 @@ The goal of this project is to simulate the **process scheduling task** in an op
 
 ---
 
-## 📥 Program Input  
+##  Program Input  
 
 The simulator reads its configuration from **standard input** (or a configuration file) and supports three types of commands:  
 
@@ -36,6 +36,7 @@ The simulator reads its configuration from **standard input** (or a configuratio
 ./scheduler test/caso_1_rr.txt
 ./scheduler test/caso_1_sjf.txt
 ./scheduler test/caso_1_srt.txt
+
 
 
 
