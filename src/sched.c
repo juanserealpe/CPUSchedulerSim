@@ -131,10 +131,7 @@ void schedule(list *processes, priority_queue *queues, int nqueues)
     else if (queues[queue_index].strategy == RR && 
              queues[queue_index].quantum > 0 && 
              current_quantum >= queues[queue_index].quantum) {
-      // PRIMERO procesar llegadas del tiempo actual antes de preempción
-      process_arrival(current_time, queues, nqueues);
-      
-      // LUEGO hacer preempción - el proceso va AL FINAL
+      // Hacer preempción por quantum - el proceso va AL FINAL
       current_process->state = READY;
       push_back(queues[queue_index].ready, current_process);
       printf("[%d] Process %s preempted (quantum expired, remaining: %d)\n", 
@@ -182,7 +179,6 @@ void schedule(list *processes, priority_queue *queues, int nqueues)
   }
   printf("\n");
 }
-
 priority_queue *create_queues(int n)
 {
   priority_queue *ret;
